@@ -15,6 +15,11 @@ import {
   isReasonableHeight
 } from './types.js';
 
+interface QueuedHeightAdjustment {
+  readonly behavior: HeightAdjustmentBehavior;
+  readonly resolve: () => void;
+}
+
 /**
  * Core height controller implementation
  * 核心高度控制器：基于第一性原理，提供极简接口和完整内部系统
@@ -27,7 +32,7 @@ import {
  */
 export class CoreHeightController implements HeightController {
   private currentHeight = 0;
-  private behaviorQueue: HeightAdjustmentBehavior[] = [];
+  private behaviorQueue: QueuedHeightAdjustment[] = [];
   private executing = false;
   private _isDisposed = false;
   private readonly debugId = generateDebugId('HeightController');
@@ -69,13 +74,15 @@ export class CoreHeightController implements HeightController {
       console.log(`[${this.debugId}] Queueing height adjustment to ${behavior.targetHeight}px`);
     }
 
-    // 加入队列
-    this.behaviorQueue.push(behavior);
-    
-    // 如果没有在执行，开始处理
-    if (!this.executing) {
-      await this.processQueue();
-    }
+    return new Promise<void>((resolve) => {
+      // 加入队列
+      this.behaviorQueue.push({ behavior, resolve });
+
+      // 如果没有在执行，开始处理
+      if (!this.executing) {
+        void this.processQueue();
+      }
+    });
   }
 
   /**
@@ -86,7 +93,8 @@ export class CoreHeightController implements HeightController {
     this.executing = true;
     
     while (this.behaviorQueue.length > 0) {
-      const behavior = this.behaviorQueue.shift()!;
+      const queuedAdjustment = this.behaviorQueue.shift()!;
+      const { behavior, resolve } = queuedAdjustment;
       
       if (this.debug) {
         console.log(`[${this.debugId}] Processing height adjustment: ${this.currentHeight}px → ${behavior.targetHeight}px`);
@@ -136,6 +144,8 @@ export class CoreHeightController implements HeightController {
         this.currentHeight = behavior.targetHeight;
         
         // 继续处理队列，不因单个失败而中断
+      } finally {
+        resolve();
       }
     }
     
@@ -161,7 +171,9 @@ export class CoreHeightController implements HeightController {
       console.log(`[${this.debugId}] Disposing controller`);
     }
 
-    this.behaviorQueue.length = 0;
+    while (this.behaviorQueue.length > 0) {
+      this.behaviorQueue.shift()!.resolve();
+    }
     this.executing = false;
     this._isDisposed = true;
   }

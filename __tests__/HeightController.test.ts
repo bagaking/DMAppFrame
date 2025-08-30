@@ -202,6 +202,29 @@ describe('CoreHeightController', () => {
       expect(results).toEqual([400, 600]);
       expect(controller.getCurrentHeight()).toBe(600);
     });
+
+    test('should resolve each concurrent adjustment only after it is processed', async () => {
+      mockBridge.delay = 25;
+      const resolutions: number[] = [];
+
+      const firstAdjustment = controller
+        .adjustHeight({ targetHeight: 400 })
+        .then(() => { resolutions.push(400); });
+      const secondAdjustment = controller
+        .adjustHeight({ targetHeight: 600 })
+        .then(() => { resolutions.push(600); });
+
+      await firstAdjustment;
+
+      expect(resolutions).toEqual([400]);
+      expect(controller.getCurrentHeight()).toBe(400);
+      expect(mockBridge.calls).toHaveLength(2);
+
+      await secondAdjustment;
+
+      expect(resolutions).toEqual([400, 600]);
+      expect(controller.getCurrentHeight()).toBe(600);
+    });
   });
 
   describe('Error Handling and Resilience', () => {
@@ -279,6 +302,18 @@ describe('CoreHeightController', () => {
       
       // Queue should be cleared
       expect((controller as any).behaviorQueue.length).toBe(0);
+    });
+
+    test('should resolve queued adjustments when disposed', async () => {
+      mockBridge.delay = 25;
+
+      const firstAdjustment = controller.adjustHeight({ targetHeight: 400 });
+      const secondAdjustment = controller.adjustHeight({ targetHeight: 600 });
+
+      controller.dispose();
+
+      await expect(secondAdjustment).resolves.toBeUndefined();
+      await firstAdjustment;
     });
   });
 
