@@ -2,6 +2,7 @@
   "name": "@bagaking/dma-frame",
   "version": "0.1.1",
   "type": "module",
+  "packageManager": "pnpm@10.0.0",
   "description": "Unified API for document mini-app frame control - elegant height management for document addons",
   "keywords": [
     "feishu",

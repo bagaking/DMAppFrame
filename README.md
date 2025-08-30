@@ -32,6 +32,19 @@ npm install @bagaking/dma-frame
 npm install @lark-opdev/block-docs-addon-api
 ```
 
+## 🛠️ Development
+
+This package is maintained with pnpm. Use the same checks locally that CI runs:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run typecheck
+pnpm run lint
+pnpm test
+pnpm run build
+npm pack --dry-run
+```
+
 ## 🚀 Quick Start
 
 ### Basic Usage
