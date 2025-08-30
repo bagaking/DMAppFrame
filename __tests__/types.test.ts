@@ -235,5 +235,9 @@ describe('createMockBridge', () => {
       code: 'PLATFORM_BRIDGE_ERROR',
       platform: 'unit-test'
     });
+    await expect(bridge.updateHeight(-1)).rejects.toMatchObject({
+      code: 'PLATFORM_BRIDGE_ERROR',
+      platform: 'unit-test'
+    });
   });
 });
