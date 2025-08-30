@@ -1,0 +1,13 @@
+{
+  "manifestVersion": 1,
+  "appID": "cli_dmappframe_test",
+  "appType": "docs-addon",
+  "blockTypeID": "blk_dmappframe_height_test",
+  "projectName": "dmappframe-height-test",
+  "contributes": {
+    "addPanel": {
+      "initialHeight": 400,
+      "view": "index.html"
+    }
+  }
+}
