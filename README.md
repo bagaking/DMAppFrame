@@ -34,7 +34,7 @@ npm install @lark-opdev/block-docs-addon-api
 
 ## 🛠️ Development
 
-This package is maintained with pnpm. Use the same checks locally that CI runs:
+This package is maintained with pnpm. Use the same pnpm checks locally that CI runs:
 
 ```bash
 pnpm install --frozen-lockfile
@@ -42,6 +42,11 @@ pnpm run typecheck
 pnpm run lint
 pnpm test
 pnpm run build
+```
+
+Before release packaging, also run:
+
+```bash
 npm pack --dry-run
 ```
 
