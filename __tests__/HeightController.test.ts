@@ -267,6 +267,31 @@ describe('CoreHeightController', () => {
       
       expect(controller.getCurrentHeight()).toBe(500);
     });
+
+    test('should keep queue moving when recovery UI callback throws', async () => {
+      mockBridge.shouldFail = true;
+
+      const firstAdjustment = controller.adjustHeight({
+        targetHeight: 400,
+        onUIChange: () => {
+          throw new Error('Recovery UI update failed');
+        }
+      });
+      const secondAdjustment = controller.adjustHeight({ targetHeight: 600 });
+
+      const timeout = new Promise<'timeout'>(resolve => {
+        setTimeout(() => resolve('timeout'), 100);
+      });
+
+      await expect(Promise.race([
+        Promise.all([firstAdjustment, secondAdjustment]).then(() => 'settled'),
+        timeout
+      ])).resolves.toBe('settled');
+
+      expect((controller as any).executing).toBe(false);
+      expect((controller as any).behaviorQueue).toHaveLength(0);
+      expect(controller.getCurrentHeight()).toBe(600);
+    });
   });
 
   describe('Disposal and Resource Management', () => {

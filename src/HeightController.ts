@@ -91,19 +91,19 @@ export class CoreHeightController implements HeightController {
    */
   private async processQueue(): Promise<void> {
     this.executing = true;
-    
+
     while (this.behaviorQueue.length > 0) {
       const queuedAdjustment = this.behaviorQueue.shift()!;
       const { behavior, resolve } = queuedAdjustment;
-      
+
       if (this.debug) {
         console.log(`[${this.debugId}] Processing height adjustment: ${this.currentHeight}px → ${behavior.targetHeight}px`);
       }
-      
+
       try {
         // 自动识别扩展还是收缩
         const isExpanding = behavior.targetHeight > this.currentHeight;
-        
+
         if (isExpanding) {
           // 扩展：组件先变，UI后填
           await this.bridge.updateHeight(behavior.targetHeight);
@@ -139,7 +139,13 @@ export class CoreHeightController implements HeightController {
         
         // 容错：确保UI状态正确（第一性原理：不回滚已展示的界面）
         if (behavior.onUIChange) {
-          behavior.onUIChange();
+          try {
+            await behavior.onUIChange();
+          } catch (recoveryError) {
+            if (this.debug) {
+              console.error(`[${this.debugId}] Recovery UI update failed:`, recoveryError);
+            }
+          }
         }
         this.currentHeight = behavior.targetHeight;
         
