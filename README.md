@@ -6,7 +6,7 @@ A lightweight, type-safe library providing intelligent height management for doc
 
 ## 📋 Status
 
-- **Version**: 0.1.0  
+- **Version**: 0.1.1
 - **Stability**: Beta  
 - **Platform**: Feishu/Lark Docs Addon  
 - **TypeScript**: Full Support
