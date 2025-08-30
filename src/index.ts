@@ -175,6 +175,13 @@ export function createMockBridge(options: PlatformFactoryOptions = {}): Platform
   
   return {
     async updateHeight(targetHeight: number): Promise<number> {
+      if (targetHeight <= 0) {
+        throw new PlatformBridgeError(
+          `Invalid height: ${targetHeight}. Must be positive.`,
+          platformId
+        );
+      }
+
       if (debug) {
         console.log(`[MockBridge-${platformId}] Setting height to ${targetHeight}px`);
       }

@@ -12,6 +12,7 @@ import {
   PlatformBridgeError,
   HeightControllerError
 } from '../src/types.js';
+import { createMockBridge } from '../src/index.js';
 
 describe('Framework Constants', () => {
   test('should have correct constant values', () => {
@@ -217,5 +218,22 @@ describe('Error Classes', () => {
     expect(dmError instanceof Error).toBe(true);
     expect(bridgeError instanceof Error).toBe(true);
     expect(controllerError instanceof Error).toBe(true);
+  });
+});
+
+describe('createMockBridge', () => {
+  test('should resolve positive height updates', async () => {
+    const bridge = createMockBridge({ platformId: 'unit-test' });
+
+    await expect(bridge.updateHeight(320)).resolves.toBe(320);
+  });
+
+  test('should reject non-positive heights like the Feishu bridge', async () => {
+    const bridge = createMockBridge({ platformId: 'unit-test' });
+
+    await expect(bridge.updateHeight(0)).rejects.toMatchObject({
+      code: 'PLATFORM_BRIDGE_ERROR',
+      platform: 'unit-test'
+    });
   });
 });
