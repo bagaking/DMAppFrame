@@ -4,6 +4,7 @@ import createController, {
   HeightControllerError,
   LegacyHeightController,
   PlatformBridgeError,
+  createFeishuBridge,
   createFeishuHeightController,
   createMockBridge,
   createMockHeightController
@@ -12,6 +13,7 @@ import createController, {
 describe('public package entrypoint', () => {
   test('should expose the documented controller factories', async () => {
     expect(createController).toBe(createFeishuHeightController);
+    expect(typeof createFeishuBridge).toBe('function');
     expect(typeof createMockBridge).toBe('function');
     expect(typeof createMockHeightController).toBe('function');
 
