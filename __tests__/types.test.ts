@@ -240,4 +240,32 @@ describe('createMockBridge', () => {
       platform: 'unit-test'
     });
   });
+
+  test('should reject non-finite heights like the controller', async () => {
+    const bridge = createMockBridge({ platformId: 'unit-test' });
+
+    await expect(bridge.updateHeight(Number.POSITIVE_INFINITY)).rejects.toMatchObject({
+      code: 'PLATFORM_BRIDGE_ERROR',
+      platform: 'unit-test'
+    });
+    await expect(bridge.updateHeight(Number.NEGATIVE_INFINITY)).rejects.toMatchObject({
+      code: 'PLATFORM_BRIDGE_ERROR',
+      platform: 'unit-test'
+    });
+    await expect(bridge.updateHeight(Number.NaN)).rejects.toMatchObject({
+      code: 'PLATFORM_BRIDGE_ERROR',
+      platform: 'unit-test'
+    });
+  });
+
+  test('should reject heights above the controller range', async () => {
+    const bridge = createMockBridge({ platformId: 'unit-test' });
+
+    await expect(
+      bridge.updateHeight(FRAMEWORK_CONSTANTS.MAX_REASONABLE_HEIGHT + 1)
+    ).rejects.toMatchObject({
+      code: 'PLATFORM_BRIDGE_ERROR',
+      platform: 'unit-test'
+    });
+  });
 });
