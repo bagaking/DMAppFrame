@@ -12,10 +12,9 @@
 import { CoreHeightController } from './HeightController.js';
 import { FeishuPlatformBridge } from './FeishuBridge.js';
 import {
-  FRAMEWORK_CONSTANTS,
   PlatformBridgeError,
   isModuleImportError,
-  isReasonableHeight
+  validateBridgeHeight
 } from './types.js';
 import type { 
   HeightController, 
@@ -180,26 +179,7 @@ export function createMockBridge(options: PlatformFactoryOptions = {}): Platform
   
   return {
     async updateHeight(targetHeight: number): Promise<number> {
-      if (!Number.isFinite(targetHeight)) {
-        throw new PlatformBridgeError(
-          `Invalid height: ${targetHeight}. Must be a finite number.`,
-          platformId
-        );
-      }
-
-      if (targetHeight < FRAMEWORK_CONSTANTS.MIN_REASONABLE_HEIGHT) {
-        throw new PlatformBridgeError(
-          `Invalid height: ${targetHeight}. Must be at least ${FRAMEWORK_CONSTANTS.MIN_REASONABLE_HEIGHT}px.`,
-          platformId
-        );
-      }
-
-      if (!isReasonableHeight(targetHeight)) {
-        throw new PlatformBridgeError(
-          `Invalid height: ${targetHeight}. Must be within reasonable range (${FRAMEWORK_CONSTANTS.MIN_REASONABLE_HEIGHT}-${FRAMEWORK_CONSTANTS.MAX_REASONABLE_HEIGHT}px).`,
-          platformId
-        );
-      }
+      validateBridgeHeight(targetHeight, platformId);
 
       if (debug) {
         console.log(`[MockBridge-${platformId}] Setting height to ${targetHeight}px`);

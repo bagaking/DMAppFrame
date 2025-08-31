@@ -7,7 +7,7 @@
  */
 
 import type { PlatformBridge } from './types.js';
-import { PlatformBridgeError, generateDebugId } from './types.js';
+import { PlatformBridgeError, generateDebugId, validateBridgeHeight } from './types.js';
 
 /**
  * 飞书文档插件桥接器
@@ -31,12 +31,7 @@ export class FeishuPlatformBridge implements PlatformBridge {
    * 更新组件高度 - 调用DocMiniApp Bridge API
    */
   async updateHeight(targetHeight: number): Promise<number> {
-    if (targetHeight <= 0) {
-      throw new PlatformBridgeError(
-        `Invalid height: ${targetHeight}. Must be positive.`,
-        'feishu'
-      );
-    }
+    validateBridgeHeight(targetHeight, 'feishu');
 
     if (this.debug) {
       console.log(`[${this.debugId}] 更新高度到 ${targetHeight}px`);

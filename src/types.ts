@@ -138,6 +138,30 @@ export function isReasonableHeight(height: number): boolean {
          height <= FRAMEWORK_CONSTANTS.MAX_REASONABLE_HEIGHT;
 }
 
+// Keep bridge implementations aligned before they call platform APIs.
+export function validateBridgeHeight(height: number, platform: string): void {
+  if (!Number.isFinite(height)) {
+    throw new PlatformBridgeError(
+      `Invalid height: ${height}. Must be a finite number.`,
+      platform
+    );
+  }
+
+  if (height < FRAMEWORK_CONSTANTS.MIN_REASONABLE_HEIGHT) {
+    throw new PlatformBridgeError(
+      `Invalid height: ${height}. Must be at least ${FRAMEWORK_CONSTANTS.MIN_REASONABLE_HEIGHT}px.`,
+      platform
+    );
+  }
+
+  if (!isReasonableHeight(height)) {
+    throw new PlatformBridgeError(
+      `Invalid height: ${height}. Must be within reasonable range (${FRAMEWORK_CONSTANTS.MIN_REASONABLE_HEIGHT}-${FRAMEWORK_CONSTANTS.MAX_REASONABLE_HEIGHT}px).`,
+      platform
+    );
+  }
+}
+
 /**
  * 检查错误是否为模块导入失败
  * 用于精确的异常处理：区分模块加载错误和其他运行时错误

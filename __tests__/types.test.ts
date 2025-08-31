@@ -12,7 +12,7 @@ import {
   PlatformBridgeError,
   HeightControllerError
 } from '../src/types.js';
-import { createMockBridge } from '../src/index.js';
+import { createMockBridge, FeishuPlatformBridge } from '../src/index.js';
 
 describe('Framework Constants', () => {
   test('should have correct constant values', () => {
@@ -267,5 +267,30 @@ describe('createMockBridge', () => {
       code: 'PLATFORM_BRIDGE_ERROR',
       platform: 'unit-test'
     });
+  });
+});
+
+describe('FeishuPlatformBridge', () => {
+  test('should reject the same invalid bridge heights before platform calls', async () => {
+    const updateHeight = jest.fn();
+    const bridge = new FeishuPlatformBridge({ Bridge: { updateHeight } });
+
+    const invalidHeights = [
+      0,
+      -1,
+      Number.POSITIVE_INFINITY,
+      Number.NEGATIVE_INFINITY,
+      Number.NaN,
+      FRAMEWORK_CONSTANTS.MAX_REASONABLE_HEIGHT + 1
+    ];
+
+    for (const height of invalidHeights) {
+      await expect(bridge.updateHeight(height)).rejects.toMatchObject({
+        code: 'PLATFORM_BRIDGE_ERROR',
+        platform: 'feishu'
+      });
+    }
+
+    expect(updateHeight).not.toHaveBeenCalled();
   });
 });
